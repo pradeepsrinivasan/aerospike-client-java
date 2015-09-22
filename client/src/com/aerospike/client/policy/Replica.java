@@ -31,6 +31,8 @@ public enum Replica {
 	 * to be enabled in order to function properly.
 	 */
 	MASTER_PROLES,
+
+    CUSTOM,
 	
 	/**
 	 * Distribute reads across all nodes in cluster in round-robin fashion.

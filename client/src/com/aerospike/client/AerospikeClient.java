@@ -16,13 +16,6 @@
  */
 package com.aerospike.client;
 
-import java.io.Closeable;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.aerospike.client.admin.AdminCommand;
 import com.aerospike.client.admin.Privilege;
 import com.aerospike.client.admin.Role;
@@ -30,47 +23,24 @@ import com.aerospike.client.admin.User;
 import com.aerospike.client.cluster.Cluster;
 import com.aerospike.client.cluster.Connection;
 import com.aerospike.client.cluster.Node;
-import com.aerospike.client.command.Batch;
-import com.aerospike.client.command.BatchExecutor;
-import com.aerospike.client.command.BatchNode;
-import com.aerospike.client.command.Buffer;
-import com.aerospike.client.command.Command;
-import com.aerospike.client.command.DeleteCommand;
-import com.aerospike.client.command.ExecuteCommand;
-import com.aerospike.client.command.Executor;
-import com.aerospike.client.command.ExistsCommand;
-import com.aerospike.client.command.MultiCommand;
-import com.aerospike.client.command.OperateCommand;
-import com.aerospike.client.command.ReadCommand;
-import com.aerospike.client.command.ReadHeaderCommand;
-import com.aerospike.client.command.RegisterCommand;
-import com.aerospike.client.command.ScanCommand;
-import com.aerospike.client.command.TouchCommand;
-import com.aerospike.client.command.WriteCommand;
+import com.aerospike.client.command.*;
 import com.aerospike.client.large.LargeList;
 import com.aerospike.client.large.LargeMap;
 import com.aerospike.client.large.LargeSet;
 import com.aerospike.client.large.LargeStack;
-import com.aerospike.client.policy.AdminPolicy;
-import com.aerospike.client.policy.BatchPolicy;
-import com.aerospike.client.policy.ClientPolicy;
-import com.aerospike.client.policy.InfoPolicy;
-import com.aerospike.client.policy.Policy;
-import com.aerospike.client.policy.QueryPolicy;
-import com.aerospike.client.policy.ScanPolicy;
-import com.aerospike.client.policy.WritePolicy;
-import com.aerospike.client.query.IndexCollectionType;
-import com.aerospike.client.query.IndexType;
-import com.aerospike.client.query.QueryAggregateExecutor;
-import com.aerospike.client.query.QueryRecordExecutor;
-import com.aerospike.client.query.RecordSet;
-import com.aerospike.client.query.ResultSet;
-import com.aerospike.client.query.ServerCommand;
-import com.aerospike.client.query.Statement;
+import com.aerospike.client.policy.*;
+import com.aerospike.client.query.*;
 import com.aerospike.client.task.ExecuteTask;
 import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.util.Util;
+
+import java.io.Closeable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Instantiate an <code>AerospikeClient</code> object to access an Aerospike
@@ -93,7 +63,7 @@ public class AerospikeClient implements IAerospikeClient, Closeable {
 	// Member variables.
 	//-------------------------------------------------------
 	
-	protected Cluster cluster;
+	public Cluster cluster;
 	
 	/**
 	 * Default read policy that is used when read command policy is null.

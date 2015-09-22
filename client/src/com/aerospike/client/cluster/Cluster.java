@@ -16,18 +16,6 @@
  */
 package com.aerospike.client.cluster;
 
-import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReferenceArray;
-
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Host;
 import com.aerospike.client.Log;
@@ -38,6 +26,14 @@ import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.Replica;
 import com.aerospike.client.util.Environment;
 import com.aerospike.client.util.Util;
+
+import java.io.Closeable;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class Cluster implements Runnable, Closeable {
 	private static final int MaxSocketIdleSecondLimit = 60 * 60 * 24; // Limit maxSocketIdle to 24 hours
@@ -686,6 +682,30 @@ public class Cluster implements Runnable, Closeable {
 		return getRandomNode();
 	}
 
+    public final Node[] getAllNodes(Partition partition) throws AerospikeException.InvalidNode {
+        // Must copy hashmap reference for copy on write semantics to work.
+        HashMap<String,AtomicReferenceArray<Node>[]> map = partitionMap;
+        AtomicReferenceArray<Node>[] replicaArray = map.get(partition.namespace);
+
+        List<Node> nodes = new LinkedList<Node>();
+        if (replicaArray != null) {
+            for (AtomicReferenceArray<Node> aReplicaArray : replicaArray) {
+                Node node = aReplicaArray.get(partition.partitionId);
+                if (node != null && node.isActive()) {
+                    nodes.add(node);
+                } else {
+//                    System.out.println("CHECK::");
+                }
+            }
+        }
+
+        if ( nodes.size() > 0) {
+            return nodes.toArray(new Node[]{});
+        }
+
+        return new Node[] { getRandomNode()};
+    }
+
 	public final Node getRandomNode() throws AerospikeException.InvalidNode {
 		// Must copy array reference for copy on write semantics to work.
 		Node[] nodeArray = nodes;
@@ -753,16 +773,14 @@ public class Cluster implements Runnable, Closeable {
 		for (Entry<String,AtomicReferenceArray<Node>[]> entry : partitionMap.entrySet()) {
 			String namespace = entry.getKey();
 			AtomicReferenceArray<Node>[] replicaArray = entry.getValue();
-			
-			for (int i = 0; i < replicaArray.length; i++) {
+
+            for (int i = 0; i < replicaArray.length; i++) {
 				AtomicReferenceArray<Node> nodeArray = replicaArray[i];
 				int max = nodeArray.length();
-				
 				for (int j = 0; j < max; j++) {
 					Node node = nodeArray.get(j);
-					
 					if (node != null) {
-						Log.info(namespace + ',' + i + ',' + j + ',' + node);
+                        System.out.println(namespace + ',' + i + ',' + j + ',' + node);
 					}
 				}
 			}

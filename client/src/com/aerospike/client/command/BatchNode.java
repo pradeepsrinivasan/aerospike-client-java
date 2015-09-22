@@ -16,9 +16,6 @@
  */
 package com.aerospike.client.command;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.BatchRead;
 import com.aerospike.client.Key;
@@ -27,6 +24,11 @@ import com.aerospike.client.cluster.Cluster;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.cluster.Partition;
 import com.aerospike.client.policy.BatchPolicy;
+import com.aerospike.client.policy.CustomRouting;
+import com.aerospike.client.policy.Replica;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class BatchNode {
 	
@@ -48,7 +50,11 @@ public final class BatchNode {
 
 		// Split keys by server node.
 		List<BatchNode> batchNodes = new ArrayList<BatchNode>(nodes.length);
-				
+
+        if ( policy.replica == Replica.CUSTOM) {
+            CustomRouting.prepareBatchNodes(cluster, keys);
+        }
+
 		for (int i = 0; i < keys.length; i++) {
 			Partition partition = new Partition(keys[i]);						
 			Node node = cluster.getReadNode(partition, policy.replica);
