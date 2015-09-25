@@ -494,7 +494,7 @@ public class Main implements Log.Callback {
 		
 		if (line.hasOption("prole")) {
 			clientPolicy.requestProleReplicas = true;
-			args.readPolicy.replica = Replica.MASTER_PROLES;
+			args.readPolicy.replica = Replica.RANDOM;
 		}
 
 		if (line.hasOption("threads")) {
