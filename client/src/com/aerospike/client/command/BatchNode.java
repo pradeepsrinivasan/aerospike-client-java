@@ -54,30 +54,25 @@ public final class BatchNode {
 		// Split keys by server node.
 		List<BatchNode> batchNodes = new ArrayList<BatchNode>(nodes.length);
 
-//        if ( policy.replica == Replica.CUSTOM) {
-//            Map<Node, HashSet<Key>> prepareBatchNodes = CustomRouting.prepareBatchNodes(cluster, keys);
-//            for( Entry<Node, HashSet<Key>> e :prepareBatchNodes.entrySet()) {
-//            	Node node = e.getKey();
-//				BatchNode batchNode = findBatchNode(batchNodes, node);
-//            	
-//				for (Key key : e.getValue()) {
-//					for (int j = 0; j < keys.length; j++) {
-//						if( keys[j] == key) {
-//							if (batchNode == null) {
-//								batchNodes.add(new BatchNode(node, keysPerNode, j));
-//							}
-//							else {
-//								batchNode.addKey(j);
-//							}
-//						}
-//					}
-//				}
-//            	
-//            	
-//            }
-//            return batchNodes;
-//            
-//        }
+        if ( policy.replica == Replica.CUSTOM) {
+            Map<Node, HashSet<Key>> prepareBatchNodes = CustomRouting.prepareBatchNodes(cluster, keys);
+            for( Entry<Node, HashSet<Key>> e :prepareBatchNodes.entrySet()) {
+            	Node node = e.getKey();
+				for (Key key : e.getValue()) {
+					BatchNode batchNode = findBatchNode(batchNodes, node);
+					int findIndex = findIndex(key, keys);
+					if (batchNode == null) {
+						batchNodes.add(new BatchNode(node, keysPerNode, findIndex));
+					}
+					else {
+						batchNode.addKey(findIndex);
+					}
+				}
+            	
+            }
+            return batchNodes;
+            
+        }
 
         Partition partition = new Partition(keys[0]);						
         Node node = cluster.getReadNode(partition, policy.replica);
@@ -92,6 +87,15 @@ public final class BatchNode {
 			}
 		}
 		return batchNodes;
+	}
+	
+	private static int findIndex(Key key, Key[] keys) {
+		for (int j = 0; j < keys.length; j++) {
+			if( keys[j] == key) {
+				return j;
+			}
+		}
+		return -1;
 	}
 
 	public static List<BatchNode> generateList(Cluster cluster,
